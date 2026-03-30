@@ -267,29 +267,39 @@ def plot_feature_importance(rf, feature_names, top_n=15):
 # =========================
 
 def main():
-    # 1) 데이터 불러오기 및 기본 확인
+    print(">>> STEP 1: load_data")
     df = load_data()
+
+    print(">>> STEP 2: basic_info")
     basic_info(df)
+
+    print(">>> STEP 3: check_missing_outliers")
     check_missing_outliers(df)
 
-    # 2) 연구 주제 관련 EDA 그래프
-    plot_stress_vs_sleep(df)
-    plot_stress_vs_activity(df)
-    plot_corr_heatmap(df)
+    # ===== EDA 그래프는 일단 건너뛰기 =====
+    # print(">>> STEP 4: plot_stress_vs_sleep")
+    # plot_stress_vs_sleep(df)
 
-    # 3) 전처리 + 분할
+    # print(">>> STEP 5: plot_stress_vs_activity")
+    # plot_stress_vs_activity(df)
+
+    # print(">>> STEP 6: plot_corr_heatmap")
+    # plot_corr_heatmap(df)
+
+    print(">>> STEP 7: preprocess_data")
     (X_train, X_test, y_train, y_test,
      X_train_scaled, X_test_scaled, feature_names) = preprocess_data(df)
 
-    # 4) 모델 학습
+    print(">>> STEP 8: train_linear_regression")
     lr = train_linear_regression(X_train_scaled, y_train)
+
+    print(">>> STEP 9: train_random_forest")
     rf_base = train_random_forest(X_train, y_train)
 
-    # 5) 랜덤포레스트 하이퍼파라미터 튜닝
+    print(">>> STEP 10: tune_random_forest")
     rf_best, grid_search = tune_random_forest(X_train, y_train)
 
-    # 튜닝 전/후 랜덤포레스트 비교
-    print("\n===== 튜닝 전/후 RandomForest 성능 =====")
+    print(">>> STEP 11: RF base vs tuned")
     for name, rf in [("Base RF", rf_base), ("Tuned RF", rf_best)]:
         y_pred = rf.predict(X_test)
         rmse = mean_squared_error(y_test, y_pred, squared=False)
@@ -297,15 +307,15 @@ def main():
         r2 = r2_score(y_test, y_pred)
         print(name, "RMSE:", rmse, "MAE:", mae, "R2:", r2)
 
-    # 6) 선형회귀 vs 튜닝된 랜덤포레스트 최종 비교
+    print(">>> STEP 12: compare_models")
     results, y_pred_lr, y_pred_rf = compare_models(
         lr, rf_best, X_test, X_test_scaled, y_test
     )
 
-    # 7) 변수 중요도
+    print(">>> STEP 13: feature_importance")
     plot_feature_importance(rf_best, feature_names, top_n=15)
 
-    # 8) 실제값 vs 예측값 일부 비교 출력
+    print(">>> STEP 14: show some predictions")
     comparison_df = pd.DataFrame({
         "Actual": y_test.values,
         "Pred_LR": y_pred_lr,
