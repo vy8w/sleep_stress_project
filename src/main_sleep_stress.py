@@ -214,7 +214,8 @@ def compare_models(lr, rf,
     y_pred_rf = rf.predict(X_test)
 
     def metrics(y_true, y_pred):
-        rmse = mean_squared_error(y_true, y_pred, squared=False)
+        mse = mean_squared_error(y_true, y_pred)
+        rmse = mse ** 0.5
         mae = mean_absolute_error(y_true, y_pred)
         r2 = r2_score(y_true, y_pred)
         return rmse, mae, r2
@@ -232,7 +233,6 @@ def compare_models(lr, rf,
     print("\n===== 모델 성능 비교 =====")
     print(results)
 
-    # 실제 vs 예측 (랜덤포레스트) 산점도
     plt.figure(figsize=(6, 6))
     plt.scatter(y_test, y_pred_rf, alpha=0.5, label="RandomForest")
     plt.plot([y_test.min(), y_test.max()],
@@ -302,7 +302,8 @@ def main():
     print(">>> STEP 11: RF base vs tuned")
     for name, rf in [("Base RF", rf_base), ("Tuned RF", rf_best)]:
         y_pred = rf.predict(X_test)
-        rmse = mean_squared_error(y_test, y_pred, squared=False)
+        mse = mean_squared_error(y_test, y_pred)
+        rmse = mse ** 0.5          # 직접 RMSE 계산
         mae = mean_absolute_error(y_test, y_pred)
         r2 = r2_score(y_test, y_pred)
         print(name, "RMSE:", rmse, "MAE:", mae, "R2:", r2)
